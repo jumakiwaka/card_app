@@ -137,8 +137,73 @@
     </div>
     <button class="mdc-button" data-pay-btn>Pay & Checkout Now</button>
     <script>
+      const appState = {
+        //hold data for the app
+      };
+      
+      const formatAsMoney = (amount, buyerCountry)=>{
+        //use the param to format the user's bill as a proper currency
+        const options = {
+          style: "currency",
+          currency: "USD"
+        };
+        countries.forEach(countryInfo => {
+          if(countryInfo.country == buyerCountry){
+            options.currency = countryInfo.currency;
+            return amount.toLocaleString(countryInfo.code, options);
+          }          
+        });
+        return amount.toLocaleString('en-US', options);
+      };
+      
+      
+      
+      	const detectCardType = ({target})=>{
+          
+        };
+      
+        const validateCardExpiryDate = ({target})=>{
+        //see detectedCardType
+      };
+      
+       const validateCardHolderName = ({target})=>{
+        //see detectedCardType
+      };
+      
+      const uiCanInteract = ()=>{
+        //will be called to setup ui like adding event handlers to enable interactions with app
+        
+      };
+      
+      const displayCartTotal = ({results})=>{       
+        const [data] = results;        
+        const {itemsInCart, buyerCountry} = data;
+        appState.items = itemsInCart;
+        appState.country = buyerCountry;
+        
+        appState.bill = itemsInCart.reduce((accumulator, currentValue)=>{
+          return (accumulator.qty * accumulator.price) + (currentValue.qty*currentValue.price);          
+        });
+        appState.billFormated = formatAsMoney(appState.bill, appState.country);
+        document.querySelector('[data-bill]').textContent = appState.billFormated;
+        uiCanInteract();
+      };
+      
+      const fetchBill = ()=>{
+       
+        const api = 'https://randomapi.com/api/006b08a801d82d0c9824dcfdfdfa3b3c';
+        
+        fetch(api).then(response=>{          
+          return response.json();
+        }).then( data => {
+          displayCartTotal(data);          
+        }).catch(error=>{
+          console.error(error);
+        });
+      };
+      
       const supportedCards = {
-        visa, mastercard
+        //visa, mastercard
       };
       
       const countries = [
@@ -190,6 +255,8 @@
       ];
       
       const startApp = () => {
+        fetchBill();
+        
       };
 
       startApp();
