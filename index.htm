@@ -40,11 +40,11 @@
         margin-left: calc(100% - 130px);
       }
 
-      .is-visa {
+      [data-credit-card].is-visa {
         background: linear-gradient(135deg, #622774 0%, #c53364 100%);
       }
 
-      .is-mastercard {
+      [data-credit-card].is-mastercard {
         background: linear-gradient(135deg, #65799b 0%, #5e2563 100%);
       }
 
@@ -175,32 +175,34 @@
       };
       
       const detectCardType = ({target})=>{
-		//visa start with 4 mastercard with 5
-        if(target.value.charAt(0) == 4){
-          //remove is-master and add is-visa to data-credit-card         
-          document.querySelector('[data-card-type]').setAttribute('class', 'is-visa');
-          document.querySelector('[data-card-type]').setAttribute('src', supportedCards.visa);
-          
-        }else if(target.value.charAt(0) == 5){
-          //remove is-visa and add is-mastercard
-          //set src of data-card-type Img using the data urls in supportedCards         
-          document.querySelector('[data-card-type]').setAttribute('class', 'is-mastercard');
-          document.querySelector('[data-card-type]').setAttribute('src', supportedCards.mastercard);
+		const logo = document.querySelector('[data-card-type]');
+        const bg = document.querySelector('[data-credit-card]');
+        if(target.value.charAt(0) == 4){ 
+          bg.classList.remove('is-mastercard');
+          bg.classList.add('is-visa');
+          logo.src = supportedCards.visa;
+          return "is-visa";
+        }else if(target.value.charAt(0) == 5)
+        {        
+          bg.classList.remove('is-visa');
+          bg.classList.add('is-mastercard');
+          logo.src = supportedCards.mastercard;
+          return "is-mastercard";
         }else{
-          document.querySelector('[data-card-type]').setAttribute('class', '');
-          document.querySelector('[data-card-type]').setAttribute('src', 'http://placehold.it/120x60.png?text=Card')
+          bg.classList.remove('is-visa');
+          bg.classList.remove('is-mastercard');
+          logo.src = 'http://placehold.it/120x60.png?text=Card';
         }
       };
 
-      const validateCardExpiryDate = ({target})=>{
-        //see detectedCardType
+      const validateCardExpiryDate = ({target})=>{       
         
-        let isValidDate = expiryDateFormatIsValid(target);
+        const isValidDate = expiryDateFormatIsValid(target);
         const date = new Date();
-        let expDate = target.value.split('/');
-        isValidDate = expDate[0]>=(date.getMonth()+1) && expDate[1]>=(date.getFullYear()-2000);
-        flagIfInvalid(target, isValidDate);
-        return isValidDate;        
+        const expDate = target.value.split('/');
+        const isValid = expDate[0]>=(date.getMonth()+1) && expDate[1]>=(date.getFullYear()-2000);
+        flagIfInvalid(target, isValidDate && isValid);
+        return isValidDate && isValid;        
       };
 
       const validateCardHolderName = ({target})=>{
@@ -279,8 +281,8 @@
       };
       
       const supportedCards = {
-        visa: "http://placehold.it/120x60.png?text=visa", 
-        mastercard: "http://placehold.it/120x60.png?text=mastercard"
+        visa, 
+        mastercard
       };
       
       const countries = [
