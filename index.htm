@@ -156,28 +156,104 @@
         return amount.toLocaleString('en-US', options);
       };
       
+      const flagIfInvalid = (field, isValid)=>{
+        
+        if(isValid){
+          //remove is-valid class from field
+          field.removeAttribute('class');
+        }else{
+          field.setAttribute('class', 'is-invalid');
+        }
+      };      
       
+      const expiryDateFormatIsValid = (target)=>{
+        //test expiry date of card
+        let expDate = target.value.split('/');
+        
+        return (expDate[0].length == 2 && expDate[1].length==2 && 0<expDate[0] && expDate[0]<=12);   
       
-      	const detectCardType = ({target})=>{
-          
-        };
-      
-        const validateCardExpiryDate = ({target})=>{
-        //see detectedCardType
       };
       
-       const validateCardHolderName = ({target})=>{
+      const detectCardType = ({target})=>{
+		//visa start with 4 mastercard with 5
+        if(target.value.charAt(0) == 4){
+          //remove is-master and add is-visa to data-credit-card         
+          document.querySelector('[data-card-type]').setAttribute('class', 'is-visa');
+          document.querySelector('[data-card-type]').setAttribute('src', supportedCards.visa);
+          
+        }else if(target.value.charAt(0) == 5){
+          //remove is-visa and add is-mastercard
+          //set src of data-card-type Img using the data urls in supportedCards         
+          document.querySelector('[data-card-type]').setAttribute('class', 'is-mastercard');
+          document.querySelector('[data-card-type]').setAttribute('src', supportedCards.mastercard);
+        }else{
+          document.querySelector('[data-card-type]').setAttribute('class', '');
+          document.querySelector('[data-card-type]').setAttribute('src', 'http://placehold.it/120x60.png?text=Card')
+        }
+      };
+
+      const validateCardExpiryDate = ({target})=>{
         //see detectedCardType
+        
+        let isValidDate = expiryDateFormatIsValid(target);
+        const date = new Date();
+        let expDate = target.value.split('/');
+        isValidDate = expDate[0]>=(date.getMonth()+1) && expDate[1]>=(date.getFullYear()-2000);
+        flagIfInvalid(target, isValidDate);
+        return isValidDate;        
+      };
+
+      const validateCardHolderName = ({target})=>{
+        //see detectedCardType
+        const name = target.value.split(' ');
+        if(name[0].length >=3 && name[1].length>=3){
+          flagIfInvalid(target, true);
+          return true;
+        }else{
+          flagIfInvalid(target, false);
+          return false;
+        }
+      };
+      
+      const validateCardNumber = () =>{
+        
       };
       
       const uiCanInteract = ()=>{
-        //will be called to setup ui like adding event handlers to enable interactions with app
+       const elem1 = document.querySelector('[data-cc-digits] input:nth-child(1)');
+       const target = {
+         target: elem1,
+       };
+       elem1.addEventListener('blur', (e)=>{
+         detectCardType(target)
+       });
+        
+       const elem2 = document.querySelector('[data-cc-info] input:nth-child(1)')
+       const target1 = {
+         target: elem2,
+       };
+       elem2.addEventListener('blur', (e)=>{
+         validateCardHolderName(target1);
+       });
+        
+       const elem3 = document.querySelector('[data-cc-info] input:nth-child(2)')
+       const target2 = {
+         target: elem3,
+       };
+       elem3.addEventListener('blur', (e)=>{
+         validateCardExpiryDate(target2);
+       });
+        
+       const elem4 = document.querySelector('[data-pay-btn]')
+       elem4.addEventListener('click', validateCardNumber);
+        
+       document.querySelector('[data-cc-digits] input:nth-child(1)').focus();
         
       };
       
       const displayCartTotal = ({results})=>{       
-        const [data] = results;        
-        const {itemsInCart, buyerCountry} = data;
+        const [data] = results;
+        const {itemsInCart,buyerCountry} = data;
         appState.items = itemsInCart;
         appState.country = buyerCountry;
         
@@ -203,7 +279,8 @@
       };
       
       const supportedCards = {
-        //visa, mastercard
+        visa: "http://placehold.it/120x60.png?text=visa", 
+        mastercard: "http://placehold.it/120x60.png?text=mastercard"
       };
       
       const countries = [
