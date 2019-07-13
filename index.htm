@@ -217,8 +217,47 @@
         }
       };
       
-      const validateCardNumber = () =>{
+      const validateWithLuhn = (digits) =>{
+        //return a boolean regarding on if the digits are valid or not
+        let sum = 0;
+        for(let i=digits.length-1; i>=0; i--){
+          if(i%2==0) {digits[i]*=2};
+          if(digits[i]>9){
+            digits[i]-=9;
+          }
+          sum += digits[i];
+        }
+        return (sum%10==0);   
         
+        };
+      
+      const validateCardNumber = () =>{
+        let field1 = document.querySelector('[data-cc-digits] input:nth-child(1)').value,
+            field2 = document.querySelector('[data-cc-digits] input:nth-child(2)').value,
+            field3 = document.querySelector('[data-cc-digits] input:nth-child(3)').value,
+            field4 = document.querySelector('[data-cc-digits] input:nth-child(4)').value;
+        
+        let cardDigits = [];
+        
+        for(let i=0; i<field1.length; i++){
+          cardDigits.push(Number(field1.charAt(i)));
+        };
+        for(let i=0; i<field2.length; i++){
+          cardDigits.push(Number(field2.charAt(i)));
+        };
+        for(let i=0; i<field3.length; i++){
+          cardDigits.push(Number(field3.charAt(i)));
+        };
+        for(let i=0; i<field4.length; i++){
+          cardDigits.push(Number(field4.charAt(i)));
+        };
+        const isValidCard = validateWithLuhn(cardDigits);
+        const validDiv = document.querySelector('[data-cc-digits]');
+        if(isValidCard){
+          validDiv.classList.remove('is-invalid');
+        }else{
+          validDiv.classList.add('is-invalid');
+        }
       };
       
       const uiCanInteract = ()=>{
@@ -227,10 +266,10 @@
          target: elem1,
        };
        elem1.addEventListener('blur', (e)=>{
-         detectCardType(target)
+         detectCardType(target);
        });
         
-       const elem2 = document.querySelector('[data-cc-info] input:nth-child(1)')
+       const elem2 = document.querySelector('[data-cc-info] input:nth-child(1)');
        const target1 = {
          target: elem2,
        };
@@ -238,7 +277,7 @@
          validateCardHolderName(target1);
        });
         
-       const elem3 = document.querySelector('[data-cc-info] input:nth-child(2)')
+       const elem3 = document.querySelector('[data-cc-info] input:nth-child(2)');
        const target2 = {
          target: elem3,
        };
@@ -246,8 +285,10 @@
          validateCardExpiryDate(target2);
        });
         
-       const elem4 = document.querySelector('[data-pay-btn]')
-       elem4.addEventListener('click', validateCardNumber);
+       const elem4 = document.querySelector('[data-pay-btn]');
+       elem4.addEventListener('click', (e)=>{
+         validateCardNumber();
+       });
         
        document.querySelector('[data-cc-digits] input:nth-child(1)').focus();
         
