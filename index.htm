@@ -122,7 +122,7 @@
     </div>
     <div data-credit-card class="mdc-card mdc-card-outlined">
       <div class="mdc-card__primary-action">
-        <img data-card-type src="http://placehold.it/120x60.png?text=Card">
+        <img data-card-type src="https://placehold.it/120x60.png?text=Card">
         <div data-cc-digits>
           <input type="text" placeholder="----" size="4">
           <input type="text" placeholder="----" size="4">
@@ -141,34 +141,30 @@
         //hold data for the app
       };
       
-      const formatAsMoney = (amount, buyerCountry)=>{
-        //use the param to format the user's bill as a proper currency
-        const options = {
+      const formatAsMoney = (amount, buyerCountry)=>{        
+        let options = {
           style: "currency",
           currency: "USD"
         };
-        countries.forEach(countryInfo => {
+        let local;
+        countries.forEach((countryInfo) => {          
           if(countryInfo.country == buyerCountry){
             options.currency = countryInfo.currency;
-            return amount.toLocaleString(countryInfo.code, options);
+            local =  amount.toLocaleString(`en-${countryInfo.code}`, options);            
+          }
+          else{
+            local = amount.toLocaleString(`en-${US}`, options);
           }          
-        });
-        return amount.toLocaleString('en-US', options);
+        });  
+        return `${local}`;      
       };
       
-      const flagIfInvalid = (field, isValid)=>{
-        
-        if(isValid){
-          //remove is-valid class from field
-          field.removeAttribute('class');
-        }else{
-          field.setAttribute('class', 'is-invalid');
-        }
-      };      
+      const flagIfInvalid = (field, isValid)=>{        
+  isValid ? field.removeAttribute('class') : field.setAttribute('class', 'is-invalid');     };      
       
       const expiryDateFormatIsValid = (target)=>{
         //test expiry date of card
-        let expDate = target.value.split('/');
+        const	 expDate = target.value.split('/');
         
         return (expDate[0].length == 2 && expDate[1].length==2 && 0<expDate[0] && expDate[0]<=12);   
       
@@ -191,7 +187,7 @@
         }else{
           bg.classList.remove('is-visa');
           bg.classList.remove('is-mastercard');
-          logo.src = 'http://placehold.it/120x60.png?text=Card';
+          logo.src = 'https://placehold.it/120x60.png?text=Card';
         }
       };
 
@@ -254,10 +250,11 @@
         const isValidCard = validateWithLuhn(cardDigits);
         const validDiv = document.querySelector('[data-cc-digits]');
         if(isValidCard){
-          validDiv.classList.remove('is-invalid');
+          validDiv.classList.remove('is-invalid');          
         }else{
-          validDiv.classList.add('is-invalid');
+          validDiv.classList.add('is-invalid');          
         }
+        return isValidCard;
       };
       
       const uiCanInteract = ()=>{
@@ -301,10 +298,11 @@
         appState.country = buyerCountry;
         
         appState.bill = itemsInCart.reduce((accumulator, currentValue)=>{
-          return (accumulator.qty * accumulator.price) + (currentValue.qty*currentValue.price);          
+          return (accumulator.qty * accumulator.price + currentValue.qty*currentValue.price);          
         });
-        appState.billFormated = formatAsMoney(appState.bill, appState.country);
-        document.querySelector('[data-bill]').textContent = appState.billFormated;
+        appState.billFormatted = formatAsMoney(appState.bill, appState.country);
+        console.log(appState.billFormatted);
+        document.querySelector('[data-bill]').textContent = appState.billFormatted;
         uiCanInteract();
       };
       
